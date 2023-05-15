@@ -1,10 +1,34 @@
 return {
+  s({ trig = "dp_service" },
+    fmt(
+      [[
+        module "deployment_pipeline" {{
+          source       = "git::https://gitlab.com/kloverhq/terraform/modules/gke-deployment-pipeline?ref=v0.0.22"
+          domain       = var.domain
+          service_name = var.service_name
+        }}
+      ]],
+      {}
+    )
+  ),
+  s({ trig = "dp_cron_job" },
+    fmt(
+      [[
+        module "deployment_pipeline" {{
+          source   = "git::https://gitlab.com/kloverhq/terraform/modules/gke-cronjob-pipeline?ref=v0.0.4"
+          domain   = var.domain
+          job_name = var.job_name
+        }}
+      ]],
+      {}
+    )
+  ),
   s({ trig = "service_account" },
     fmt(
       [[
         # {{ google_service_account_email }}
         module "gcp_service_account" {{
-          source                   = "git::https://gitlab.com/kloverhq/terraform/modules/gcp-service-account//k8s-link?ref=k8s-link-v0.0.4"
+          source                   = "git::https://gitlab.com/kloverhq/terraform/modules/gcp-service-account//k8s-link?ref=k8s-link-v0.0.5"
           bigquery_access_required = {}
           domain                   = var.domain
           service_name             = var.service_name
@@ -99,7 +123,7 @@ return {
       ]],
       {
         i(1),
-        f(function (arg)
+        f(function(arg)
           return { string.upper(arg[1][1]) }
         end, { 1 }),
         i(3, "terraform-resource.attr"),
