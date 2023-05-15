@@ -16,6 +16,14 @@ Kickstart.nvim targets *only* the latest ['stable'](https://github.com/neovim/ne
 Distribution Alternatives:
 - [LazyVim](https://www.lazyvim.org/): A delightful distribution maintained by @folke (the author of lazy.nvim, the package manager used here)
 
+### Helpful Commands
+
+| Command | Description |
+|---------|-------------|
+| `:Telescope help_tags`| search through help |
+| `:Telescope keymaps` | search through hotkeys already set |
+| `:help` | find documentation/tutorials. Use `<Tab>` to autocomplete |
+
 ### Installation
 
 * Backup your previous configuration (if any exists)
