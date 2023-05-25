@@ -431,7 +431,7 @@ local servers = {
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
-  rust_analyzer = {},
+  -- rust_analyzer = {},
   -- tsserver = {},
 
   lua_ls = {
@@ -471,9 +471,6 @@ mason_lspconfig.setup_handlers {
       settings = servers[server_name],
     }
   end,
-  -- empty function to disable config
-  ['rust_analyzer'] = function()
-  end
 }
 
 -- nvim-cmp setup
