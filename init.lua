@@ -367,7 +367,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = "Open diagn
 
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
   -- NOTE: Remember that lua is a real programming language, and as such it is possible
   -- to define small helper and utility functions so you don't have to repeat yourself
   -- many times.
@@ -382,8 +382,18 @@ local on_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
+  local rt = require("rust-tools")
+
+  if client.name == "rust_analyzer" then
+    -- Hover actions
+    nmap("<Leader>ha", rt.hover_actions.hover_actions, '[H]over [A]ction')
+    -- Code action groups
+    nmap("<Leader>ca", rt.code_action_group.code_action_group, '[C]ode [A]ction')
+  else
+    nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  end
+
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -394,7 +404,7 @@ local on_attach = function(_, bufnr)
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  nmap('<C-K>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -421,25 +431,7 @@ local servers = {
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
-  rust_analyzer = {
-    ['rust-analyzer'] = {
-      cargo = {
-        buildScripts = {
-          enable = true,
-        },
-      },
-      procMacro = {
-        enable = true
-      },
-      checkOnSave = {
-        allFeatures = true,
-        overrideCommand = {
-          'cargo', 'clippy', '--workspace', '--message-format=json',
-          '--all-targets', '--all-features'
-        }
-      }
-    }
-  },
+  rust_analyzer = {},
   -- tsserver = {},
 
   lua_ls = {
@@ -479,6 +471,9 @@ mason_lspconfig.setup_handlers {
       settings = servers[server_name],
     }
   end,
+  -- empty function to disable config
+  ['rust_analyzer'] = function()
+  end
 }
 
 -- nvim-cmp setup
@@ -503,7 +498,7 @@ cmp.setup {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    ['<Tab>'] = cmp.mapping(function(fallback)
+    ['<C-k>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
       elseif luasnip.expand_or_jumpable() then
@@ -512,7 +507,7 @@ cmp.setup {
         fallback()
       end
     end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
+    ['<C-j>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
       elseif luasnip.jumpable(-1) then
@@ -537,7 +532,7 @@ require("luasnip").setup {
   update_events = 'InsertLeave,TextChanged,TextChangedI',
 
   -- Autosnippets:
-  enable_autosnippets = true,
+  -- enable_autosnippets = true,
 
   -- Crazy highlights!!
   -- #vid3
@@ -552,5 +547,40 @@ require("luasnip").setup {
 }
 require("luasnip.loaders.from_lua").load({ paths = "~/.config/nvim/LuaSnip" })
 
+
+local rt = require("rust-tools")
+
+rt.setup {
+  tools = {
+    reload_workspace_from_cargo_toml = true,
+    hover_actions = {
+      auto_focus = true,
+    }
+  },
+  server = {
+    capabilities = capabilities,
+    on_attach = on_attach,
+    standalone = false,
+    settings = {
+      ['rust-analyzer'] = {
+        cargo = {
+          buildScripts = {
+            enable = true,
+          },
+        },
+        procMacro = {
+          enable = true
+        },
+        checkOnSave = {
+          allFeatures = true,
+          overrideCommand = {
+            'cargo', 'clippy', '--workspace', '--message-format=json',
+            '--all-targets', '--all-features'
+          }
+        }
+      }
+    }
+  }
+}
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

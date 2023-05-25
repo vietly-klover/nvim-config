@@ -3,7 +3,7 @@ return {
     fmt(
       [[
         module "deployment_pipeline" {{
-          source       = "git::https://gitlab.com/kloverhq/terraform/modules/gke-deployment-pipeline?ref=v0.0.22"
+          source       = "git::https://gitlab.com/kloverhq/terraform/modules/gke-deployment-pipeline?ref=v0.0.25"
           domain       = var.domain
           service_name = var.service_name
         }}
@@ -28,7 +28,7 @@ return {
       [[
         # {{ google_service_account_email }}
         module "gcp_service_account" {{
-          source                   = "git::https://gitlab.com/kloverhq/terraform/modules/gcp-service-account//k8s-link?ref=k8s-link-v0.0.5"
+          source                   = "git::https://gitlab.com/kloverhq/terraform/modules/gcp-service-account//k8s-link?ref=k8s-link-v0.0.8"
           bigquery_access_required = {}
           domain                   = var.domain
           service_name             = var.service_name
