@@ -1,5 +1,5 @@
 return {
-  s({ trig = "fn" },
+  s({ trig = "!fn" },
     fmt(
       [[
         fn {}({}) -> {} {{
@@ -11,6 +11,16 @@ return {
         i(2, ""),
         i(3, "()"),
         i(0, "todo!()"),
+      }
+    )
+  ),
+  s({ trig = "!derive" },
+    fmt(
+      [[
+        #[derive({})]
+      ]],
+      {
+        i(1, ""),
       }
     )
   ),
