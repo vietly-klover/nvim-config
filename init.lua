@@ -412,17 +412,24 @@ local on_attach = function(client, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
-  local rt = require("rust-tools")
-
-  if client.name == "rust_analyzer" then
-    -- Hover actions
-    nmap("<Leader>ha", rt.hover_actions.hover_actions, '[H]over [A]ction')
-    -- Code action groups
-    nmap("<Leader>ca", rt.code_action_group.code_action_group, '[C]ode [A]ction')
+  vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+  if client.name == "rust-analyzer" then
+    --   -- Hover actions
+    nmap('<Leader>ha', function()
+      vim.cmd.RustLsp { 'hover', 'actions' }
+    end, '[H]over [A]ction')
+    --   -- Code action groups
+    nmap('<Leader>ca', function()
+      vim.cmd.RustLsp('codeAction') -- supports rust-analyzer's grouping
+      -- or vim.lsp.buf.codeAction() if you don't want grouping.
+    end, '[C]ode [A]ction')
+    nmap('<leader>rd', function()
+      vim.cmd.RustLsp('renderDiagnostic')
+    end, '[R]ender [D]iagnostics')
   else
     nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
   end
-
+  --
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
@@ -575,20 +582,18 @@ require("luasnip").setup {
 require("luasnip.loaders.from_lua").load({ paths = "~/.config/nvim/LuaSnip" })
 
 
-local rt = require("rust-tools")
-
-rt.setup {
+vim.g.rustaceanvim = {
   tools = {
     reload_workspace_from_cargo_toml = true,
     hover_actions = {
-      auto_focus = true,
+      -- auto_focus = true,
     }
   },
   server = {
     capabilities = capabilities,
     on_attach = on_attach,
     standalone = false,
-    settings = {
+    default_settings = {
       ['rust-analyzer'] = {
         cargo = {
           buildScripts = {
