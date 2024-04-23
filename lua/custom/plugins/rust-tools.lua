@@ -1,7 +1,18 @@
 return {
-	'simrat39/rust-tools.nvim',
-	dependencies = {
-		"neovim/nvim-lspconfig",
-		"nvim-lua/plenary.nvim",
-	},
+  'mrcjkb/rustaceanvim',
+  version = '^4', -- Recommended
+  lazy = false,  -- This plugin is already lazy
+  dependencies = {
+    -- "lvimuser/lsp-inlayhints.nvim"
+  },
+  config = function()
+    vim.g.rustaceanvim = {
+      tools = {
+        hover_actions = {
+          auto_focus = true,
+        },
+      },
+    }
+  end
+
 }
