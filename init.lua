@@ -66,8 +66,19 @@ require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
   -- Git related plugins
-  'tpope/vim-fugitive',
-  'tpope/vim-rhubarb',
+  -- 'tpope/vim-fugitive',
+  -- 'tpope/vim-rhubarb',
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim",  -- required
+      "sindrets/diffview.nvim", -- optional - Diff integration
+
+      -- Only one of these is needed, not both.
+      "nvim-telescope/telescope.nvim", -- optional
+    },
+    config = true
+  },
 
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
@@ -114,14 +125,41 @@ require('lazy').setup({
     },
   },
 
-  {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
-    priority = 1000,
-    -- config = function()
-    --   vim.cmd.colorscheme 'onedark'
-    -- end,
-  },
+  -- {
+  --   'maxmx03/solarized.nvim',
+  --   lazy = false,
+  --   priority = 1000,
+  --   config = function()
+  --     require('solarized').setup {
+  --       theme = 'neo',
+  --       colors = function(colors, colorhelper)
+  --         -- local darken = colorhelper.darken
+  --         local lighten = colorhelper.lighten
+  --         -- local blend = colorhelper.blend
+  --
+  --         return {
+  --           fg = colors.base00
+  --           -- fg = '#fff'
+  --           -- '#fff', -- output: #ffffff
+  --           -- bg = darken(colors.base03, 100)
+  --         }
+  --       end,
+  --       highlights = function(colors)
+  --         return {
+  --           LspInlayHint = { fg = colors.fg }
+  --         }
+  --       end
+  --     }
+  --   end,
+  -- },
+  -- {
+  -- Theme inspired by Atom
+  -- 'navarasu/onedark.nvim',
+  -- priority = 1000,
+  -- config = function()
+  --   vim.cmd.colorscheme 'onedark'
+  -- end,
+  -- },
 
   {
     "catppuccin/nvim",
@@ -175,6 +213,9 @@ require('lazy').setup({
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
       pickers = {
+        find_files = {
+          preview = false
+        },
         live_grep = {
           additional_args = function(_)
             return { "--hidden" }
@@ -316,8 +357,14 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
+vim.keymap.set('n', '<leader>G', require('neogit').open, { desc = '[G]it UI' })
+
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+-- vim.keymap.set('n', '<leader>sf', function()
+--   require('telescope.builtin').find_files({ previewer = false })
+-- end, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>lg', require('telescope.builtin').live_grep, { desc = '[L]ive [G]rep' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
@@ -586,16 +633,16 @@ vim.g.rustaceanvim = {
   tools = {
     reload_workspace_from_cargo_toml = true,
     hover_actions = {
-      -- auto_focus = true,
+      auto_focus = true,
     }
   },
   server = {
-    capabilities = capabilities,
     on_attach = on_attach,
     standalone = false,
     default_settings = {
       ['rust-analyzer'] = {
         cargo = {
+          allFeatures = false,
           buildScripts = {
             enable = true,
           },
@@ -606,13 +653,24 @@ vim.g.rustaceanvim = {
         checkOnSave = {
           allFeatures = true,
           overrideCommand = {
-            'cargo', 'clippy', '--workspace', '--message-format=json',
-            '--all-targets', '--all-features'
+            'cargo', 'clippy', '--workspace', '--message-format=json'
           }
         }
       }
     }
   }
 }
+
+-- delete sql weird navigation issues
+vim.api.nvim_create_autocmd("Filetype", {
+  pattern = "sql",
+  callback = function()
+    vim.keymap.del('i', '<left>', { buffer = true })
+    vim.keymap.del('i', '<right>', { buffer = true })
+  end
+})
+
+-- vim.o.background = 'dark'
+-- vim.cmd.colorscheme 'solarized'
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
